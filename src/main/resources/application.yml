@@ -1,0 +1,6 @@
+acme:
+  welcome_message: "Welcome to Invillia recruitment challenge APP"
+
+spring:
+  profiles:
+    active: dev
