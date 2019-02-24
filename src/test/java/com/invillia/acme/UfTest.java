@@ -31,7 +31,7 @@ class UfTest {
     private EnvUf envUf;
 
     @BeforeEach
-    void setup() {
+    void setup() throws RecordFoundException {
         envUf.init();
     }
 

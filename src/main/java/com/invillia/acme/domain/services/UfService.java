@@ -19,8 +19,8 @@ public class UfService {
 
     public Uf save(String initial, String name) throws RecordFoundException {
         Uf uf = Uf.builder()
-                .initial(initial)
-                .name(name)
+                .initial(initial.toUpperCase())
+                .name(name.toUpperCase())
                 .build();
 
         validate(uf);

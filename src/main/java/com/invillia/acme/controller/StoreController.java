@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @Api(tags = { "storeController" })
 @RestController
@@ -17,8 +18,7 @@ public class StoreController {
     @ApiOperation(value = "Create a new Store.")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity createStore(HttpServletRequest request, @RequestBody StoreVM storeVM) {
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity createStore(HttpServletRequest request, @Valid @RequestBody StoreVM store) {
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
