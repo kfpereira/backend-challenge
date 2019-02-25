@@ -3,6 +3,7 @@ package com.invillia.acme.domain.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "CITY",
@@ -23,9 +24,11 @@ public class City {
     )
     private Long id;
 
+    @NotNull(message = "Name can't be null")
     @Column(name = "NAME")
     private String name;
 
+    @NotNull(message = "UF can't be null")
     @ManyToOne
     @JoinColumn(name = "UF_ID")
     private Uf uf;

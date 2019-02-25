@@ -6,13 +6,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-class AddressVM {
+public class AddressVM {
 
     @ApiModelProperty(required=true)
     private String streetName;
 
     @ApiModelProperty(required=true)
-    private Integer numberHome;
+    private String numberHome;
 
     private String addressAddOn;
 

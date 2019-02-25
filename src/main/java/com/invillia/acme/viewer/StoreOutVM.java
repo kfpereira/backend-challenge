@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CityVM {
+public class StoreOutVM extends StoreVM {
 
-    private String nameCity;
-    private String uf;
+    private Long id;
 
 }

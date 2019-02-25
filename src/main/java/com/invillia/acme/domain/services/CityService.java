@@ -3,6 +3,7 @@ package com.invillia.acme.domain.services;
 import com.invillia.acme.domain.model.City;
 import com.invillia.acme.domain.model.Uf;
 import com.invillia.acme.domain.repositories.CityRepository;
+import com.invillia.acme.domain.repositories.UfRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +11,16 @@ import org.springframework.stereotype.Service;
 public class CityService {
 
     private final CityRepository repository;
+    private final UfRepository ufRepository;
 
     @Autowired
-    public CityService(CityRepository repository) {
+    public CityService(CityRepository repository, UfRepository ufRepository) {
         this.repository = repository;
+        this.ufRepository = ufRepository;
+    }
+
+    public City save(String name, String uf) {
+        return save(name, ufRepository.findByInitial(uf));
     }
 
     public City save(String name, Uf uf) {

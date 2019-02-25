@@ -15,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -69,4 +71,21 @@ class CityTest {
         cities = repository.findByName("SARANDI");
         assertEquals(2, cities.size());
     }
+
+    @Test
+    void shouldNotSaveCityWithoutUf() {
+        assertThrows(ConstraintViolationException.class,
+                () -> service.save("PARANAVAI", (Uf) null),
+                "UF can't be null"
+        );
+    }
+
+    @Test
+    void shouldNotSaveCityWithInvalidUf() {
+        assertThrows(ConstraintViolationException.class,
+                () -> service.save("PARANAVAI", ufRepository.findByInitial("AA")),
+                "UF can't be null"
+        );
+    }
+
 }

@@ -18,13 +18,16 @@ public class UfService {
     }
 
     public Uf save(String initial, String name) throws RecordFoundException {
-        Uf uf = Uf.builder()
-                .initial(initial.toUpperCase())
-                .name(name.toUpperCase())
-                .build();
-
+        Uf uf = getUf(initial, name);
         validate(uf);
         return repository.saveAndFlush(uf);
+    }
+
+    private Uf getUf(String initial, String name) {
+        return Uf.builder()
+                    .initial(initial.toUpperCase())
+                    .name(name.toUpperCase())
+                    .build();
     }
 
     private void validate(Uf uf) throws RecordFoundException {

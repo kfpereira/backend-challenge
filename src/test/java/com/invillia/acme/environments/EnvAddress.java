@@ -25,6 +25,6 @@ public class EnvAddress {
         City maringaPr = cityService.find("maringa", "pr");
 
         service.save("AV. BRASIL", "2500", null, "CENTRO", "87500-000", maringaPr);
-        service.save("AV. LONDRINA", "980", "SL 01", "ONA 08", "87050-390", maringaPr);
+        service.save("AV. LONDRINA", "980", "SL 01", "ZONA 08", "87050-390", maringaPr);
     }
 }
