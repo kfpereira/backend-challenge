@@ -38,7 +38,7 @@ public class SwaggerConfig {
     {
         return new ApiInfoBuilder()
                 .title(welcomeMessage)
-                .description("A better experience in order to test your API")
+                .description("A better experience in orderSale to test your API")
                 .version("Version 1.0")
                 .contact(new Contact("Kristian", "", "kristianfantin@gmail.com"))
                 .build();
