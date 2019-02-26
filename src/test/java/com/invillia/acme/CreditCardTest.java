@@ -7,6 +7,7 @@ import com.invillia.acme.domain.model.CreditCard;
 import com.invillia.acme.domain.repositories.CreditCardRepository;
 import com.invillia.acme.domain.services.CreditCardService;
 import com.invillia.acme.environments.AbstractIntegrationTest;
+import com.invillia.acme.environments.EnvCreditCard;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,17 +34,12 @@ class CreditCardTest extends AbstractIntegrationTest {
     @Autowired
     private CreditCardRepository repository;
 
+    @Autowired
+    private EnvCreditCard envCreditCard;
+
     @Test
     void happyDay() throws CnpjCpfInvalidException, CreditCardInvalidException {
-        setDate(2019, FEBRUARY, DAY_ONE);
-        service.save(
-                "52998224725",
-                "Name Test",
-                "1234567890123456",
-                getDate("01/07/2021"),
-                "123"
-        );
-
+        envCreditCard.init();
         assertEquals(1, repository.findAll().size());
     }
 

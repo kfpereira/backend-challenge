@@ -1,6 +1,6 @@
 package com.invillia.acme.domain.model;
 
-import com.invillia.acme.domain.types.OrderStatus;
+import com.invillia.acme.domain.types.PaymentStatus;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,11 +26,11 @@ public class Payment {
 
     @ManyToOne
     @JoinColumn(name = "ORDER_ID")
-    private OrderSale orderSale;
+    private OrderSale order;
 
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
+    private PaymentStatus status;
 
     @ManyToOne
     @JoinColumn(name = "CREDIT_CARD_ID")
