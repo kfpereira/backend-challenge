@@ -1,11 +1,10 @@
 package com.invillia.acme.domain.model;
 
-import com.invillia.acme.domain.types.OrderStatus;
+import com.invillia.acme.domain.types.Status;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "ORDER_SALE")
@@ -33,12 +32,9 @@ public class OrderSale {
     @Column(name = "CONFIRMATION_DATE")
     private Date confirmationDate;
 
+    @Setter
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "ORDER_SALE_ID")
-    private List<OrderItem> itens;
+    private Status status;
 
 }

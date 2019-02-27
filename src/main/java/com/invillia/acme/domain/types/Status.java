@@ -1,14 +1,14 @@
 package com.invillia.acme.domain.types;
 
-public enum PaymentStatus {
+public enum Status {
 
     OPENED("OPENED"),
     CONCLUDED("CONCLUDED"),
     REFUNDED("REFUNDED");
 
-    private String status;
+    private String value;
 
-    PaymentStatus(String status) {
-        this.status = status;
+    Status(String value) {
+        this.value = value;
     }
 }

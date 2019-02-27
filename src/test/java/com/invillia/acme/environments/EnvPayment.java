@@ -2,13 +2,11 @@ package com.invillia.acme.environments;
 
 import com.invillia.acme.config.exceptions.*;
 import com.invillia.acme.domain.model.OrderSale;
-import com.invillia.acme.domain.repositories.OrderRepository;
+import com.invillia.acme.domain.repositories.OrderSaleRepository;
 import com.invillia.acme.domain.services.CreditCardService;
 import com.invillia.acme.domain.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import static com.invillia.acme.domain.utils.DateUtils.getDate;
 
 @Component
 public class EnvPayment {
@@ -17,7 +15,7 @@ public class EnvPayment {
     private PaymentService service;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderSaleRepository orderRepository;
 
     @Autowired
     private EnvOrder envOrder;
@@ -32,7 +30,6 @@ public class EnvPayment {
         OrderSale order = getOrderSale();
 
         service.save(order,
-                getDate("01/02/2019"),
                 creditCardService.find("52998224725", "1234567890123456", "123"));
     }
 

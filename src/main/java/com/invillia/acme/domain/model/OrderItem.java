@@ -32,4 +32,9 @@ public class OrderItem {
     @Column(name = "QUANTITY")
     private int quantity;
 
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "ORDER_SALE_ID", nullable = false)
+    private OrderSale order;
+
 }
