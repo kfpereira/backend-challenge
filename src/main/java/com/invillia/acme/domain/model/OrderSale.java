@@ -4,6 +4,7 @@ import com.invillia.acme.domain.types.Status;
 import lombok.*;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -31,6 +32,10 @@ public class OrderSale {
     @Temporal(TemporalType.DATE)
     @Column(name = "CONFIRMATION_DATE")
     private Date confirmationDate;
+
+    @Setter
+    @Column(name = "VALUE")
+    private BigDecimal value;
 
     @Setter
     @Column(name = "STATUS")

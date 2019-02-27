@@ -1,5 +1,6 @@
 package com.invillia.acme.domain.services;
 
+import com.invillia.acme.domain.model.OrderSale;
 import com.invillia.acme.domain.model.Payment;
 import com.invillia.acme.domain.observer.ObserverRefundOrder;
 import com.invillia.acme.domain.repositories.PaymentRepository;
@@ -18,7 +19,7 @@ public class PaymentRefundService implements ObserverRefundOrder {
     }
 
     @Override
-    public void update(OrderRefundService orderRefundService, Payment payment) {
+    public void update(OrderRefundService orderRefundService, Payment payment, OrderSale order) {
         update(payment, Status.REFUNDED);
     }
 

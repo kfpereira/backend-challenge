@@ -38,7 +38,8 @@ public class CreditCardService {
 
         validate(creditCard);
 
-        return repository.saveAndFlush(creditCard);
+        CreditCard card = find(cnpjCpf, number, securityCode);
+        return card == null? repository.saveAndFlush(creditCard) : card;
     }
 
     public CreditCard find(String cnpjCpf, String number, String securityCode) {

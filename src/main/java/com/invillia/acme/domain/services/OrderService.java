@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.invillia.acme.domain.utils.DateUtils.toDate;
 
@@ -41,12 +43,19 @@ public class OrderService implements ObserverPayment {
         OrderSale build = OrderSale.builder()
                 .confirmationDate(toDate(LocalDate.now(clock)))
                 .address(address)
+                .value(getItensSum(itens))
                 .status(Status.OPENED)
                 .build();
 
         OrderSale orderSale = repository.saveAndFlush(build);
         itemService.save(orderSale, itens);
         return orderSale;
+    }
+
+    private BigDecimal getItensSum(List<OrderItem> itens) {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (OrderItem item : itens) sum = sum.add(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+        return sum;
     }
 
     private void validate(Address address, List<OrderItem> itens) throws RecordNotFoundException, EmptyDataException {
@@ -77,5 +86,10 @@ public class OrderService implements ObserverPayment {
 
     public List<OrderSale> find(Status status) {
         return repository.findByStatus(status);
+    }
+
+    public OrderSale find(Long id) {
+        Optional<OrderSale> saleOptional = repository.findById(id);
+        return saleOptional.orElse(null);
     }
 }
