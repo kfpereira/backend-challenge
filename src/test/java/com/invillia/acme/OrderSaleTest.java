@@ -156,6 +156,7 @@ class OrderSaleTest extends AbstractIntegrationTest {
 
         assertEquals(Status.REFUNDED, orderSale.getStatus());
         assertEquals(Status.REFUNDED, payment.getStatus());
+        assertTrue(itemService.find(orderSale).isEmpty());
     }
 
     @Test
@@ -198,24 +199,30 @@ class OrderSaleTest extends AbstractIntegrationTest {
         Payment payment = paymentService.save(orderSale,
                 creditCardService.find("52998224725", "1234567890123456", "123"));
 
+        assertEquals(BigDecimal.valueOf(294.78), orderSale.getValue());
+
         setDate(2019, Month.MARCH, 7);
 
         List<OrderItem> itens = service.getItens(orderSale);
         refundService.refund(itens.get(3));
         assertEquals(Status.CONCLUDED, orderSale.getStatus());
         assertEquals(Status.CONCLUDED, payment.getStatus());
+        assertEquals(BigDecimal.valueOf(187.98), orderSale.getValue());
 
         refundService.refund(itens.get(2));
         assertEquals(Status.CONCLUDED, orderSale.getStatus());
         assertEquals(Status.CONCLUDED, payment.getStatus());
+        assertEquals(160, orderSale.getValue().intValue());
 
         refundService.refund(itens.get(1));
         assertEquals(Status.CONCLUDED, orderSale.getStatus());
         assertEquals(Status.CONCLUDED, payment.getStatus());
+        assertEquals(88, orderSale.getValue().intValue());
 
         refundService.refund(itens.get(0));
         assertEquals(Status.REFUNDED, orderSale.getStatus());
         assertEquals(Status.REFUNDED, payment.getStatus());
+        assertEquals(BigDecimal.ZERO, orderSale.getValue());
     }
 
     private void initFebruary25() throws RecordNotFoundException, EmptyDataException {
@@ -246,17 +253,20 @@ class OrderSaleTest extends AbstractIntegrationTest {
         OrderSale orderSaleThree = orderSaleList.get(2);
         assertEquals("Itens Order quantity", 4, service.getItens(orderSaleThree).size());
         assertEquals(getDate("25/02/2019"), orderSaleThree.getConfirmationDate());
+        assertEquals(BigDecimal.valueOf(294.78), orderSaleThree.getValue());
     }
 
     private void assertFebruary22(List<OrderSale> orderSaleList) {
         OrderSale orderSaleTwo = orderSaleList.get(1);
         assertEquals("Itens Order quantity", 3, service.getItens(orderSaleTwo).size());
         assertEquals(getDate("22/02/2019"), orderSaleTwo.getConfirmationDate());
+        assertEquals(92, orderSaleTwo.getValue().intValue());
     }
 
     private void assertFebruary21(List<OrderSale> orderSaleList) {
         OrderSale orderSaleOne = orderSaleList.get(0);
         assertEquals("Itens Order quantity", 1, service.getItens(orderSaleOne).size());
         assertEquals(getDate("21/02/2019"), orderSaleOne.getConfirmationDate());
+        assertEquals(10, orderSaleOne.getValue().intValue());
     }
 }

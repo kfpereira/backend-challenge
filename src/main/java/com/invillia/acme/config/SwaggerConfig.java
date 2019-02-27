@@ -29,7 +29,8 @@ public class SwaggerConfig {
                 .build()
                 .apiInfo(generateApiInfo())
                 .tags(
-                        new Tag("storeController", "Rest Services for Stores")
+                        new Tag("storeController", "Rest Services for Stores"),
+                        new Tag("orderController", "Rest Services for Orders")
                 );
     }
 

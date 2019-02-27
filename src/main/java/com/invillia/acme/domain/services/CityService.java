@@ -20,7 +20,7 @@ public class CityService {
     }
 
     public City save(String name, String uf) {
-        return save(name, ufRepository.findByInitial(uf));
+        return save(name.toUpperCase(), ufRepository.findByInitial(uf.toUpperCase()));
     }
 
     public City save(String name, Uf uf) {

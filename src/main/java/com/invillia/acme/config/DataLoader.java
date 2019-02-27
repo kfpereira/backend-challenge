@@ -2,10 +2,7 @@ package com.invillia.acme.config;
 
 import com.invillia.acme.config.inits.InitUfBrazil;
 import com.invillia.acme.domain.repositories.UfRepository;
-import com.invillia.acme.domain.services.OrderRefundService;
-import com.invillia.acme.domain.services.OrderService;
-import com.invillia.acme.domain.services.PaymentRefundService;
-import com.invillia.acme.domain.services.PaymentService;
+import com.invillia.acme.domain.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -21,6 +18,7 @@ public class DataLoader implements ApplicationRunner {
     private final OrderService orderService;
     private OrderRefundService orderRefundService;
     private PaymentRefundService paymentRefundService;
+    private OrderItemService orderItemService;
 
     @Autowired
     public DataLoader(InitUfBrazil initUfBrazil,
@@ -29,7 +27,8 @@ public class DataLoader implements ApplicationRunner {
                       PaymentService paymentService,
                       OrderService orderService,
                       OrderRefundService orderRefundService,
-                      PaymentRefundService paymentRefundService) {
+                      PaymentRefundService paymentRefundService,
+                      OrderItemService orderItemService) {
         this.initUfBrazil = initUfBrazil;
         this.ufRepository = ufRepository;
         this.environmentReader = environmentReader;
@@ -37,12 +36,14 @@ public class DataLoader implements ApplicationRunner {
         this.orderService = orderService;
         this.orderRefundService = orderRefundService;
         this.paymentRefundService = paymentRefundService;
+        this.orderItemService = orderItemService;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         paymentService.subscribe(orderService);
         orderRefundService.subscribe(paymentRefundService);
+        orderRefundService.subscribe(orderItemService);
 
         if (!environmentReader.isAmbienteDeTeste() && ufRepository.findAll().isEmpty()) initUfBrazil.init();
     }

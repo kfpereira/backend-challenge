@@ -9,7 +9,9 @@ import com.invillia.acme.domain.repositories.OrderSaleRepository;
 import com.invillia.acme.domain.types.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,9 +48,10 @@ public class OrderRefundService {
     public void refund(OrderSale order) {
         validateRefund(order);
 
-        this.notifyObservers(paymentService.find(order));
+        this.notifyObservers(paymentService.find(order), order);
 
         order.setStatus(Status.REFUNDED);
+        order.setValue(BigDecimal.ZERO);
         repository.saveAndFlush(order);
     }
 
@@ -71,16 +74,28 @@ public class OrderRefundService {
         observers.remove(observer);
     }
 
-    private void notifyObservers(Payment payment) {
-        observers.forEach((ObserverRefundOrder observer) -> observer.update(this, payment));
+    private void notifyObservers(Payment payment, OrderSale order) {
+        observers.forEach((ObserverRefundOrder observer) -> observer.update(this, payment, order));
     }
 
+    @Transactional
     public void refund(OrderItem item) {
         OrderSale order = item.getOrder();
         validateRefund(order);
+
+        update(item, order);
+
         itemService.refund(item);
-        List<OrderItem> items = itemService.find(order);
-        if (items.isEmpty())
+        refundWhenItemsAreEmpty(order);
+    }
+
+    private void refundWhenItemsAreEmpty(OrderSale order) {
+        if (itemService.find(order).isEmpty())
             refund(order);
+    }
+
+    private void update(OrderItem item, OrderSale order) {
+        order.setValue(order.getValue().subtract(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))));
+        repository.save(order);
     }
 }

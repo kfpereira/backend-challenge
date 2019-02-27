@@ -2,6 +2,8 @@ package com.invillia.acme.domain.services;
 
 import com.invillia.acme.domain.model.OrderItem;
 import com.invillia.acme.domain.model.OrderSale;
+import com.invillia.acme.domain.model.Payment;
+import com.invillia.acme.domain.observer.ObserverRefundOrder;
 import com.invillia.acme.domain.repositories.OrderItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class OrderItemService {
+public class OrderItemService implements ObserverRefundOrder  {
 
     private final OrderItemRepository repository;
 
@@ -33,5 +35,10 @@ public class OrderItemService {
 
     private void remove(OrderItem item) {
         repository.delete(item);
+    }
+
+    @Override
+    public void update(OrderRefundService orderRefundService, Payment payment, OrderSale order) {
+        find(order).forEach(this::refund);
     }
 }
