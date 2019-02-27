@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,16 +34,19 @@ public class OrderController {
     private final CityService cityService;
     private final CreditCardService creditCardService;
     private final PaymentService paymentService;
+    private final OrderRefundService orderRefundService;
 
     @Autowired
     public OrderController(OrderService service, OrderItemService itemService, AddressService addressService,
-                           CityService cityService, CreditCardService creditCardService, PaymentService paymentService) {
+                           CityService cityService, CreditCardService creditCardService, PaymentService paymentService,
+                           OrderRefundService orderRefundService) {
         this.service = service;
         this.itemService = itemService;
         this.addressService = addressService;
         this.cityService = cityService;
         this.creditCardService = creditCardService;
         this.paymentService = paymentService;
+        this.orderRefundService = orderRefundService;
     }
 
     @ApiOperation(value = "Create a new Order.")
@@ -52,17 +54,13 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrderOutVM createOrder(HttpServletRequest request, @Valid @RequestBody OrderVM order) throws RecordNotFoundException, EmptyDataException {
         AddressVM addressVM = order.getAddress();
-
         Address address = getAddress(addressVM);
-
-        List<OrderItem> list = new ArrayList<>();
-        for (ItemsVM vm : order.getItems()) {
-            OrderItem item = MakeItens.toOrderItem(vm);
-            list.add(item);
-        }
-
-        OrderSale orderSale = service.save(address, list);
+        OrderSale orderSale = service.save(address, getOrderItems(order));
         return toOrderOutVM(orderSale, itemService.find(orderSale));
+    }
+
+    private List<OrderItem> getOrderItems(@Valid @RequestBody OrderVM order) {
+        return order.getItems().stream().map(MakeItens::toOrderItem).collect(Collectors.toList());
     }
 
     @ApiOperation(value = "Retrieve a Order By ID.")
@@ -103,6 +101,40 @@ public class OrderController {
         CreditCard creditCard = creditCardService.save(vm.getCnpjCpf(), vm.getName(), vm.getNumber(), vm.getValidateDate(), vm.getSecurityCode());
         paymentService.save(orderSale, creditCard);
         return toOrderOutVM(orderSale, itemService.find(orderSale));
+    }
+
+    @ApiOperation(value = "Refund Order.")
+    @PostMapping("/refund/order")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public OrderOutVM refundOrder(HttpServletRequest request, @Valid @RequestBody SimpleOrderVM order) {
+        OrderSale orderSale = service.find(order.getIdOrder());
+        orderRefundService.refund(orderSale);
+        return toOrderOutVM(orderSale, itemService.find(orderSale));
+    }
+
+    @ApiOperation(value = "Refund Item of Order.")
+    @PostMapping("/refund/order/item")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public OrderOutVM refundItemFromOrder(HttpServletRequest request, @Valid @RequestBody SimpleOrderItemVM order) {
+        OrderSale orderSale = service.find(order.getIdOrder());
+        List<OrderItem> itens = service.getItens(orderSale);
+        validate(itens, order);
+
+        orderRefundService.refund(getItem(itens, order.getIdItem()));
+        return toOrderOutVM(orderSale, itemService.find(orderSale));
+    }
+
+    private OrderItem getItem(List<OrderItem> items, Long idItem) {
+        return items.stream().filter(item -> item.getId().equals(idItem)).findFirst().orElse(null);
+    }
+
+    private void validate(List<OrderItem> itens, SimpleOrderItemVM order) {
+        if (!isFound(itens, order))
+            throw new IllegalArgumentException();
+    }
+
+    private boolean isFound(List<OrderItem> itens, SimpleOrderItemVM order) {
+        return itens.stream().anyMatch(item -> item.getId().equals(order.getIdItem()));
     }
 
     private Address getAddress(AddressVM addressVM) {
