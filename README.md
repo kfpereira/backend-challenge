@@ -31,16 +31,16 @@ Fork this repository and submit your code with partial commits.
 ## Business Rules
 
 * A **Store** is composed by name and address
-* An **Order** is composed by address, confirmation date and status
+* An **Order** is composed by address, confirmation date and value
 * An **Order Item** is composed by description, unit price and quantity.
-* A **Payment** is composed by status, credit card number and payment date
+* A **Payment** is composed by value, credit card number and payment date
 * An **Order** just should be refunded until ten days after confirmation and the payment is concluded.
 
 ## Non functional requirements
 
 Your service(s) must be resilient, fault tolerant, responsive. You should prepare it/them to be highly scalable as possible.
 
-The process should be closest possible to "real-time", balancing your choices in order to achieve the expected
+The process should be closest possible to "real-time", balancing your choices in orderSale to achieve the expected
 scalability.
 
 ## Nice to have features (describe or implement):
