@@ -2,6 +2,7 @@ package com.invillia.acme;
 
 import com.invillia.acme.config.exceptions.*;
 import com.invillia.acme.core.FunctionalTest;
+import com.invillia.acme.domain.model.OrderItem;
 import com.invillia.acme.domain.model.OrderSale;
 import com.invillia.acme.domain.model.Payment;
 import com.invillia.acme.domain.model.Store;
@@ -35,6 +36,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class OrderSaleTest extends AbstractIntegrationTest {
 
     @Autowired
+    private EnvOrder envOrder;
+
+    @Autowired
+    private EnvCreditCard envCreditCard;
+
+    @Autowired
     private OrderSaleRepository repository;
 
     @Autowired
@@ -47,16 +54,13 @@ class OrderSaleTest extends AbstractIntegrationTest {
     private StoreService storeService;
 
     @Autowired
-    private EnvOrder envOrder;
-
-    @Autowired
-    private EnvCreditCard envCreditCard;
-
-    @Autowired
     private CreditCardService creditCardService;
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private OrderItemService itemService;
 
     @BeforeEach
     void setup() throws RecordFoundException, RecordNotFoundException, EmptyDataException {
@@ -147,9 +151,69 @@ class OrderSaleTest extends AbstractIntegrationTest {
         Payment payment = paymentService.save(orderSale,
                 creditCardService.find("52998224725", "1234567890123456", "123"));
 
-        setDate(2019, Month.FEBRUARY, 28);
+        setDate(2019, Month.MARCH, 7);
         refundService.refund(orderSale);
 
+        assertEquals(Status.REFUNDED, orderSale.getStatus());
+        assertEquals(Status.REFUNDED, payment.getStatus());
+    }
+
+    @Test
+    void shouldNotRefundOrderAndTheirItems() throws RecordNotFoundException, EmptyDataException, CnpjCpfInvalidException, CreditCardInvalidException, PaymentInvalidException {
+        envCreditCard.init();
+        initFebruary25();
+
+        OrderSale orderSale = service.findBetweenConfirmationDate(getDate("25/02/2019"), getDate("25/02/2019")).get(0);
+        paymentService.save(orderSale,
+                creditCardService.find("52998224725", "1234567890123456", "123"));
+
+        setDate(2019, Month.MARCH, 8);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> refundService.refund(orderSale),
+                "Date invalid to refund"
+        );
+    }
+
+    @Test
+    void shouldNotRefundOrderAndTheirItemsBecauseIsNotPaid() throws RecordNotFoundException, EmptyDataException, CnpjCpfInvalidException, CreditCardInvalidException, PaymentInvalidException {
+        envCreditCard.init();
+        initFebruary25();
+
+        OrderSale orderSale = service.findBetweenConfirmationDate(getDate("25/02/2019"), getDate("25/02/2019")).get(0);
+        setDate(2019, Month.MARCH, 7);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> refundService.refund(orderSale),
+                "The payment is not concluded"
+        );
+    }
+
+    @Test
+    void shouldRefundItemsUntilGetOrder() throws RecordNotFoundException, EmptyDataException, CnpjCpfInvalidException, CreditCardInvalidException, PaymentInvalidException {
+        envCreditCard.init();
+        initFebruary25();
+
+        OrderSale orderSale = service.findBetweenConfirmationDate(getDate("25/02/2019"), getDate("25/02/2019")).get(0);
+        Payment payment = paymentService.save(orderSale,
+                creditCardService.find("52998224725", "1234567890123456", "123"));
+
+        setDate(2019, Month.MARCH, 7);
+
+        List<OrderItem> itens = service.getItens(orderSale);
+        refundService.refund(itens.get(3));
+        assertEquals(Status.CONCLUDED, orderSale.getStatus());
+        assertEquals(Status.CONCLUDED, payment.getStatus());
+
+        refundService.refund(itens.get(2));
+        assertEquals(Status.CONCLUDED, orderSale.getStatus());
+        assertEquals(Status.CONCLUDED, payment.getStatus());
+
+        refundService.refund(itens.get(1));
+        assertEquals(Status.CONCLUDED, orderSale.getStatus());
+        assertEquals(Status.CONCLUDED, payment.getStatus());
+
+        refundService.refund(itens.get(0));
         assertEquals(Status.REFUNDED, orderSale.getStatus());
         assertEquals(Status.REFUNDED, payment.getStatus());
     }

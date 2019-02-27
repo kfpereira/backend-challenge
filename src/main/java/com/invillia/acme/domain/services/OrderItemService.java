@@ -26,4 +26,12 @@ public class OrderItemService {
     public List<OrderItem> find(OrderSale orderSale) {
         return repository.findByOrder(orderSale);
     }
+
+    public void refund(OrderItem item) {
+        remove(item);
+    }
+
+    private void remove(OrderItem item) {
+        repository.delete(item);
+    }
 }

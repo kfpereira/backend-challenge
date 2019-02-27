@@ -1,6 +1,7 @@
 package com.invillia.acme.domain.services;
 
 import com.invillia.acme.config.errors.ErrorMessages;
+import com.invillia.acme.domain.model.OrderItem;
 import com.invillia.acme.domain.model.OrderSale;
 import com.invillia.acme.domain.model.Payment;
 import com.invillia.acme.domain.observer.ObserverRefundOrder;
@@ -25,16 +26,21 @@ public class OrderRefundService {
     private final OrderSaleRepository repository;
     private final Clock clock;
     private PaymentService paymentService;
+    private OrderItemService itemService;
 
     private static final int DAYS_OF_REFUND_UNTIL = 10;
 
     private List<ObserverRefundOrder> observers = new ArrayList<>();
 
     @Autowired
-    public OrderRefundService(OrderSaleRepository repository, Clock clock, PaymentService paymentService) {
+    public OrderRefundService(OrderSaleRepository repository,
+                              Clock clock,
+                              PaymentService paymentService,
+                              OrderItemService itemService) {
         this.repository = repository;
         this.clock = clock;
         this.paymentService = paymentService;
+        this.itemService = itemService;
     }
 
     public void refund(OrderSale order) {
@@ -69,4 +75,12 @@ public class OrderRefundService {
         observers.forEach((ObserverRefundOrder observer) -> observer.update(this, payment));
     }
 
+    public void refund(OrderItem item) {
+        OrderSale order = item.getOrder();
+        validateRefund(order);
+        itemService.refund(item);
+        List<OrderItem> items = itemService.find(order);
+        if (items.isEmpty())
+            refund(order);
+    }
 }
