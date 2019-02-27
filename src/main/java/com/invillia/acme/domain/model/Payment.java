@@ -29,6 +29,7 @@ public class Payment {
     @JoinColumn(name = "ORDER_ID")
     private OrderSale order;
 
+    @Setter
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
     private Status status;

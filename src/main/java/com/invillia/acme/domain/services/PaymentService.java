@@ -5,7 +5,7 @@ import com.invillia.acme.config.exceptions.PaymentInvalidException;
 import com.invillia.acme.domain.model.CreditCard;
 import com.invillia.acme.domain.model.OrderSale;
 import com.invillia.acme.domain.model.Payment;
-import com.invillia.acme.domain.observer.Observer;
+import com.invillia.acme.domain.observer.ObserverPayment;
 import com.invillia.acme.domain.repositories.PaymentRepository;
 import com.invillia.acme.domain.types.Status;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class PaymentService {
     private final PaymentRepository repository;
     private final Clock clock;
 
-    private List<Observer> observers = new ArrayList<>();
+    private List<ObserverPayment> observers = new ArrayList<>();
 
     @Autowired
     public PaymentService(PaymentRepository repository, Clock clock) {
@@ -54,16 +54,19 @@ public class PaymentService {
             throw new PaymentInvalidException(ErrorMessages.CREDIT_CARD_INVALID.toString());
     }
 
-    public void subscribe(Observer observer) {
+    public void subscribe(ObserverPayment observer) {
         observers.add(observer);
     }
 
-    public void unsubscribe(Observer observer) {
+    public void unsubscribe(ObserverPayment observer) {
         observers.remove(observer);
     }
 
     private void notifyObservers(OrderSale order) {
-        observers.forEach((Observer observer) -> observer.update(this, order));
+        observers.forEach((ObserverPayment observer) -> observer.update(this, order));
     }
 
+    public Payment find(OrderSale order) {
+        return repository.findByOrder(order);
+    }
 }

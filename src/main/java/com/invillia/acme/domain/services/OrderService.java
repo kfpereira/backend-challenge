@@ -6,7 +6,7 @@ import com.invillia.acme.config.exceptions.RecordNotFoundException;
 import com.invillia.acme.domain.model.Address;
 import com.invillia.acme.domain.model.OrderItem;
 import com.invillia.acme.domain.model.OrderSale;
-import com.invillia.acme.domain.observer.Observer;
+import com.invillia.acme.domain.observer.ObserverPayment;
 import com.invillia.acme.domain.repositories.OrderSaleRepository;
 import com.invillia.acme.domain.types.Status;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,8 @@ import java.util.List;
 
 import static com.invillia.acme.domain.utils.DateUtils.toDate;
 
-
 @Service
-public class OrderService implements Observer {
+public class OrderService implements ObserverPayment {
 
     private final OrderSaleRepository repository;
     private final OrderItemService itemService;
@@ -79,5 +78,4 @@ public class OrderService implements Observer {
     public List<OrderSale> find(Status status) {
         return repository.findByStatus(status);
     }
-
 }

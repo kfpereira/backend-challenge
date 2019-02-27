@@ -6,10 +6,7 @@ import com.invillia.acme.domain.model.OrderSale;
 import com.invillia.acme.domain.model.Payment;
 import com.invillia.acme.domain.model.Store;
 import com.invillia.acme.domain.repositories.OrderSaleRepository;
-import com.invillia.acme.domain.services.CreditCardService;
-import com.invillia.acme.domain.services.OrderService;
-import com.invillia.acme.domain.services.PaymentService;
-import com.invillia.acme.domain.services.StoreService;
+import com.invillia.acme.domain.services.*;
 import com.invillia.acme.domain.types.Status;
 import com.invillia.acme.environments.AbstractIntegrationTest;
 import com.invillia.acme.environments.EnvCreditCard;
@@ -42,6 +39,9 @@ class OrderSaleTest extends AbstractIntegrationTest {
 
     @Autowired
     private OrderService service;
+
+    @Autowired
+    private OrderRefundService refundService;
 
     @Autowired
     private StoreService storeService;
@@ -136,6 +136,22 @@ class OrderSaleTest extends AbstractIntegrationTest {
 
         List<OrderSale> saleList = service.find(Status.CONCLUDED);
         assertEquals(1, saleList.size());
+    }
+
+    @Test
+    void shouldRefundOrderAndTheirItems() throws RecordNotFoundException, EmptyDataException, CnpjCpfInvalidException, CreditCardInvalidException, PaymentInvalidException {
+        envCreditCard.init();
+        initFebruary25();
+
+        OrderSale orderSale = service.findBetweenConfirmationDate(getDate("25/02/2019"), getDate("25/02/2019")).get(0);
+        Payment payment = paymentService.save(orderSale,
+                creditCardService.find("52998224725", "1234567890123456", "123"));
+
+        setDate(2019, Month.FEBRUARY, 28);
+        refundService.refund(orderSale);
+
+        assertEquals(Status.REFUNDED, orderSale.getStatus());
+        assertEquals(Status.REFUNDED, payment.getStatus());
     }
 
     private void initFebruary25() throws RecordNotFoundException, EmptyDataException {

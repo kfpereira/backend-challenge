@@ -21,4 +21,8 @@ public final class DateUtils {
         return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
 
+    public static LocalDate toLocalDate(Date data) {
+        return data.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
 }
